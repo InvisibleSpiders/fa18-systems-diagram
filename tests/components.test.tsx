@@ -129,8 +129,13 @@ describe('Silhouette', () => {
 describe('App', () => {
   it('defaults to ECS tab and switches to Fuel', () => {
     const { getByRole, getAllByRole } = render(<App />);
-    const fuelTab = getByRole('button', { name: /^fuel$/i });
-    fireEvent.click(fuelTab);
+    fireEvent.click(getByRole('button', { name: /^fuel$/i }));
     expect(getAllByRole('button').some((b) => /normal feed/i.test(b.textContent ?? ''))).toBe(true);
+  });
+
+  it('shows the editor toolbar and toggles edit mode', () => {
+    const { getByRole } = render(<App />);
+    fireEvent.click(getByRole('button', { name: /^edit$/i }));
+    expect(getByRole('button', { name: /editing/i })).toBeTruthy();
   });
 });
