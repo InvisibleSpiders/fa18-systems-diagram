@@ -84,6 +84,7 @@ header h1 { font-size: 20px; margin: 0; }
 .flow-node.selected .flow-node-glyph circle,
 .flow-node.selected .flow-node-glyph polygon { stroke: var(--fluid-bleed-regulated); stroke-width: 3.5; }
 .flow-node-label { font-size: 11px; color: var(--text); margin-top: 2px; white-space: nowrap; }
+.flow-node .react-flow__handle.handle-hidden { opacity: 0; pointer-events: none; }
 
 /* React Flow custom edge (path classes mirror the old .edge rules) */
 .flow-edge { stroke-width: 3; fill: none; }
