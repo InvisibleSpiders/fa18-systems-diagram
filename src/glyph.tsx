@@ -1,14 +1,7 @@
-import type { SystemNode, NodeType } from '../model';
-
-interface Props {
-  node: SystemNode;
-  mode: string;
-  selected: boolean;
-  onSelect: () => void;
-}
+import type { NodeType } from './model';
 
 // Distinct simple glyph per type, drawn around the origin.
-function Glyph({ type }: { type: NodeType }) {
+export function Glyph({ type }: { type: NodeType }) {
   switch (type) {
     case 'tank': return <rect x={-22} y={-14} width={44} height={28} rx={6} />;
     case 'engine': return <rect x={-26} y={-12} width={52} height={24} rx={3} />;
@@ -28,14 +21,7 @@ function Glyph({ type }: { type: NodeType }) {
   }
 }
 
-export function Node({ node, mode, selected, onSelect }: Props) {
-  const state = node.modeStates[mode] ?? 'inactive';
-  const cls = ['node', `node-${state}`, `type-${node.type}`, selected ? 'selected' : ''].filter(Boolean).join(' ');
-  const [x, y] = node.pos;
-  return (
-    <g className={cls} transform={`translate(${x},${y})`} onClick={onSelect} data-node-id={node.id}>
-      <Glyph type={node.type} />
-      <text className="node-label" y={30} textAnchor="middle">{node.label}</text>
-    </g>
-  );
-}
+export const NODE_TYPES: NodeType[] = [
+  'valve', 'heat-exchanger', 'acm', 'compressor', 'tank', 'pump', 'regulator',
+  'sensor', 'engine', 'probe', 'duct-junction', 'lox-converter', 'receptacle', 'mast',
+];
