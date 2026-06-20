@@ -11,8 +11,11 @@ export interface FlowEdgeData extends Record<string, unknown> {
   mode: string;
 }
 
+export type SystemFlowNode = RFNode<FlowNodeData, 'systemNode'>;
+export type SystemFlowEdge = RFEdge<FlowEdgeData, 'systemEdge'>;
+
 export function toFlow(data: SystemData, mode: string, editMode: boolean) {
-  const nodes: RFNode<FlowNodeData>[] = data.nodes.map((n) => ({
+  const nodes: SystemFlowNode[] = data.nodes.map((n) => ({
     id: n.id,
     type: 'systemNode',
     position: { x: n.pos[0], y: n.pos[1] },
@@ -20,7 +23,7 @@ export function toFlow(data: SystemData, mode: string, editMode: boolean) {
     draggable: editMode,
     selectable: true,
   }));
-  const edges: RFEdge<FlowEdgeData>[] = data.edges.map((e) => ({
+  const edges: SystemFlowEdge[] = data.edges.map((e) => ({
     id: e.id,
     source: e.from,
     target: e.to,
