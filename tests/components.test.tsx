@@ -114,6 +114,16 @@ describe('Silhouette', () => {
     const { container } = render(<Silhouette node={null} />);
     expect(container.querySelectorAll('.loc-dot').length).toBe(0);
   });
+
+  it('reports a dot placement click in edit mode', () => {
+    const n: SystemNode = { id: 'a', label: 'A', type: 'tank', pos: [0, 0], silhouette: {}, description: 'x', modeStates: {} };
+    let placed: { view: string; pos: [number, number] } | null = null;
+    const { container } = render(
+      <Silhouette node={n} editMode onPlaceDot={(view, pos) => (placed = { view, pos })} />,
+    );
+    fireEvent.click(container.querySelector('svg')!);
+    expect(placed?.view).toBe('top');
+  });
 });
 
 describe('App', () => {
