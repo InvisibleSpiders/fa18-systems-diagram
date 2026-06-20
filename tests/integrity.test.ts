@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { validateSystem } from '../src/data/integrity';
 import { MODES } from '../src/data/modes';
 import { ECS } from '../src/data/ecs';
+import { FUEL } from '../src/data/fuel';
 import type { SystemData } from '../src/model';
 
 const modeIds = MODES.map((m) => m.id);
@@ -52,5 +53,25 @@ describe('ECS data', () => {
       const anyActive = ECS.nodes.some((n) => n.modeStates[mode] === 'active');
       expect(anyActive, `mode ${mode} has no active node`).toBe(true);
     }
+  });
+});
+
+describe('Fuel data', () => {
+  it('passes integrity validation', () => {
+    expect(validateSystem(FUEL, modeIds)).toEqual([]);
+  });
+  it('has an active node for every fuel mode', () => {
+    for (const mode of ['fuel-feed', 'fuel-transfer', 'fuel-external', 'fuel-ar', 'fuel-ground', 'fuel-dump', 'fuel-bingo']) {
+      const anyActive = FUEL.nodes.some((n) => n.modeStates[mode] === 'active');
+      expect(anyActive, `mode ${mode} has no active node`).toBe(true);
+    }
+  });
+  it('feed tanks are 2 and 3', () => {
+    const feed = FUEL.nodes.filter((n) => /Feed/.test(n.label)).map((n) => n.id).sort();
+    expect(feed).toEqual(['tank2', 'tank3']);
+  });
+  it('transfer tanks are 1 and 4', () => {
+    const xfer = FUEL.nodes.filter((n) => /Transfer/.test(n.label) && n.type === 'tank').map((n) => n.id).sort();
+    expect(xfer).toEqual(['tank1', 'tank4']);
   });
 });
