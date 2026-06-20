@@ -1,0 +1,8 @@
+:root {
+  --fluid-bleed-hot:#e8552d; --fluid-bleed-regulated:#f0a830;
+  --fluid-conditioned-air:#3d8bff; --fluid-ram-air:#7fd8e8;
+  --fluid-fuel:#3fae5a; --fluid-fuel-vapor:#9ad6a8; --fluid-pao-coolant:#9b59d0;
+  --bg:#0e1116; --panel:#1a1f28; --text:#e6e9ef; --dim:#5a6472;
+}
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui, sans-serif; }
