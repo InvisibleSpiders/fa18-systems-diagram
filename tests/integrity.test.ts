@@ -1,0 +1,77 @@
+import { describe, it, expect } from 'vitest';
+import { validateSystem } from '../src/data/integrity';
+import { MODES } from '../src/data/modes';
+import { ECS } from '../src/data/ecs';
+import { FUEL } from '../src/data/fuel';
+import type { SystemData } from '../src/model';
+
+const modeIds = MODES.map((m) => m.id);
+
+const good: SystemData = {
+  nodes: [
+    { id: 'a', label: 'A', type: 'tank', pos: [0, 0], silhouette: {}, description: 'x', modeStates: { 'fuel-feed': 'active' } },
+    { id: 'b', label: 'B', type: 'engine', pos: [1, 1], silhouette: {}, description: 'y', modeStates: { 'fuel-feed': 'active' } },
+  ],
+  edges: [
+    { id: 'e1', from: 'a', to: 'b', fluid: 'fuel', waypoints: [], modeFlow: { 'fuel-feed': { active: true } } },
+  ],
+};
+
+describe('validateSystem', () => {
+  it('returns no errors for valid data', () => {
+    expect(validateSystem(good, modeIds)).toEqual([]);
+  });
+
+  it('flags an edge referencing a missing node', () => {
+    const bad: SystemData = { ...good, edges: [{ ...good.edges[0], to: 'ghost' }] };
+    expect(validateSystem(bad, modeIds)).toContain('edge e1: "to" references unknown node "ghost"');
+  });
+
+  it('flags a node modeState referencing an unknown mode', () => {
+    const bad: SystemData = {
+      ...good,
+      nodes: [{ ...good.nodes[0], modeStates: { 'no-such-mode': 'active' } }, good.nodes[1]],
+    };
+    expect(validateSystem(bad, modeIds)).toContain('node a: modeStates references unknown mode "no-such-mode"');
+  });
+
+  it('flags an orphan node touched by no edge', () => {
+    const bad: SystemData = {
+      ...good,
+      nodes: [...good.nodes, { id: 'c', label: 'C', type: 'valve', pos: [2, 2], silhouette: {}, description: 'z', modeStates: {} }],
+    };
+    expect(validateSystem(bad, modeIds)).toContain('node c: orphan (no edge connects to it)');
+  });
+});
+
+describe('ECS data', () => {
+  it('passes integrity validation', () => {
+    expect(validateSystem(ECS, modeIds)).toEqual([]);
+  });
+  it('has an active node for every ECS mode', () => {
+    for (const mode of ['ecs-ground', 'ecs-auto', 'ecs-manual', 'ecs-ram', 'ecs-antiice', 'ecs-avionics']) {
+      const anyActive = ECS.nodes.some((n) => n.modeStates[mode] === 'active');
+      expect(anyActive, `mode ${mode} has no active node`).toBe(true);
+    }
+  });
+});
+
+describe('Fuel data', () => {
+  it('passes integrity validation', () => {
+    expect(validateSystem(FUEL, modeIds)).toEqual([]);
+  });
+  it('has an active node for every fuel mode', () => {
+    for (const mode of ['fuel-feed', 'fuel-transfer', 'fuel-external', 'fuel-ar', 'fuel-ground', 'fuel-dump', 'fuel-bingo']) {
+      const anyActive = FUEL.nodes.some((n) => n.modeStates[mode] === 'active');
+      expect(anyActive, `mode ${mode} has no active node`).toBe(true);
+    }
+  });
+  it('feed tanks are 2 and 3', () => {
+    const feed = FUEL.nodes.filter((n) => /Feed/.test(n.label)).map((n) => n.id).sort();
+    expect(feed).toEqual(['tank2', 'tank3']);
+  });
+  it('transfer tanks are 1 and 4', () => {
+    const xfer = FUEL.nodes.filter((n) => /Transfer/.test(n.label) && n.type === 'tank').map((n) => n.id).sort();
+    expect(xfer).toEqual(['tank1', 'tank4']);
+  });
+});
