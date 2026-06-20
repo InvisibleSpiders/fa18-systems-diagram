@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { validateSystem } from '../src/data/integrity';
 import { MODES } from '../src/data/modes';
+import { ECS } from '../src/data/ecs';
 import type { SystemData } from '../src/model';
 
 const modeIds = MODES.map((m) => m.id);
@@ -39,5 +40,17 @@ describe('validateSystem', () => {
       nodes: [...good.nodes, { id: 'c', label: 'C', type: 'valve', pos: [2, 2], silhouette: {}, description: 'z', modeStates: {} }],
     };
     expect(validateSystem(bad, modeIds)).toContain('node c: orphan (no edge connects to it)');
+  });
+});
+
+describe('ECS data', () => {
+  it('passes integrity validation', () => {
+    expect(validateSystem(ECS, modeIds)).toEqual([]);
+  });
+  it('has an active node for every ECS mode', () => {
+    for (const mode of ['ecs-ground', 'ecs-auto', 'ecs-manual', 'ecs-ram', 'ecs-antiice', 'ecs-avionics']) {
+      const anyActive = ECS.nodes.some((n) => n.modeStates[mode] === 'active');
+      expect(anyActive, `mode ${mode} has no active node`).toBe(true);
+    }
   });
 });
